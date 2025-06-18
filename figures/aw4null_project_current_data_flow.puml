@@ -1,0 +1,43 @@
+@startuml aw4null_project_current_data_flow
+title aw4null project current data flow
+
+actor User
+participant "Car" as Car
+participant "OmnAIScopes" as Scopes
+participant "VCDS" as VCDS
+participant "VCDS App" as VCDSApp
+participant "OmnAIView App" as OmnAIApp
+participant "Filesystem\n(user laptop)" as FS
+participant "Hub Website" as Hub
+participant "THGA Storage" as THGA
+
+User -> Car : Connect OmnAIScopes
+User -> Car : Connect VCDS
+User -> VCDSApp : Open VCDS App
+User -> OmnAIApp : Open OmnAIView
+User -> OmnAIApp : Start measurement via UI
+
+Scopes -> OmnAIApp : Send data via USB
+VCDS -> VCDSApp : Send data
+VCDSApp -> VCDSApp : Visualize error code data
+User -> VCDSApp : Export data
+VCDSApp -> FS : Write data file
+
+OmnAIApp -> OmnAIApp : Visualize scope data
+User -> OmnAIApp : Export data
+OmnAIApp -> FS : Write data file
+
+User -> Hub : Open hub website
+User -> FS : Open file system
+User -> Hub : Upload VCDS + scope data
+Hub -> Hub : Process data
+
+alt Processing successful
+    Hub -> User : Show “Success” message
+else Processing failed
+    Hub -> User : Show “Failed” message
+end
+
+Hub -> THGA : Send data to storage
+
+@enduml
