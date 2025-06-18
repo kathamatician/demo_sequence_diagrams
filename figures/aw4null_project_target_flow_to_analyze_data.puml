@@ -1,0 +1,51 @@
+@startuml
+title aw4null project target flow to analyze data
+
+actor user
+participant Car
+participant OmnAIScopes
+participant VCDS
+participant "VCDS app" as VCDSApp
+participant "OmnAIView app" as OmnAIView
+participant "filesystem (user laptop)" as Filesystem
+participant hub
+participant "THGA storage" as THGA
+
+== Setup Phase ==
+user -> Car : connect OmnAIScopes
+user -> Car : connect VCDS
+
+== Initialization ==
+user -> VCDSApp : open VCDS app
+user -> OmnAIView : open OmnAIView app
+
+== Measurement ==
+user -> OmnAIView : start measurement via UI
+OmnAIScopes -> OmnAIView : send sensor data via USB
+VCDS -> VCDSApp : send diagnostic data
+
+== Data Export ==
+VCDSApp -> user : visualize error codes
+user -> VCDSApp : export VCDS data
+VCDSApp -> Filesystem : save VCDS data
+OmnAIView -> user : visualize scope data
+
+== Upload ==
+user -> OmnAIView : trigger upload of OmnAIScopes + VCDS data
+OmnAIView -> hub : upload data to hub server
+
+== Server Processing ==
+hub -> hub : process data
+alt success
+    hub -> OmnAIView : send success message
+else failure
+    hub -> OmnAIView : send failure message
+end
+
+== Analysis ==
+hub -> THGA : load trained model
+hub -> hub : analyze uploaded data with model
+hub -> OmnAIView : return diagnostic result
+OmnAIView -> user : show results
+
+@enduml
