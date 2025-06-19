@@ -1,0 +1,41 @@
+@startuml
+title company project flow to generate training data
+
+actor user
+participant Car
+participant ".dll"
+participant "OmnAIView app (frontend)" as OmnAIView
+participant "NaDI (backend, node interface)" as NaDI
+participant "storage node" as StorageNode
+participant "analysis node" as AnalysisNode
+participant "data storage" as DataStorage
+participant "analysis storage" as AnalysisStorage
+participant "training server" as TrainingServer
+
+user -> Car : connect scope
+user -> OmnAIView : opens software
+OmnAIView -> NaDI : start NaDI
+user -> OmnAIView : start measurement
+OmnAIView -> NaDI : API request (start)
+NaDI -> NaDI : search for nodes
+NaDI -> OmnAIView : send available nodes
+user -> OmnAIView : selects OmnAIScope as datasource
+OmnAIView -> NaDI : open WebSocket
+NaDI -> OmnAIView : provide scope info
+user -> OmnAIView : confirms + starts measurement
+OmnAIView -> NaDI : send user config
+NaDI -> ".dll" : connect scopes
+NaDI -> NaDI : process data
+NaDI -> OmnAIView : send processed data
+OmnAIView -> user : visualize data in graph
+user -> OmnAIView : request training data
+OmnAIView -> NaDI : request training data for node
+NaDI -> StorageNode : provide training data
+StorageNode -> DataStorage : transfer data
+TrainingServer -> DataStorage : pull data (every 24h)
+TrainingServer -> TrainingServer : train model
+TrainingServer -> AnalysisStorage : save trained data
+TrainingServer -> OmnAIView : send success message
+OmnAIView -> user : show success
+
+@enduml

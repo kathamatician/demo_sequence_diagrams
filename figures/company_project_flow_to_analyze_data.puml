@@ -1,0 +1,40 @@
+@startuml
+title company project flow to analyze data
+
+actor user
+participant Car
+participant ".dll"
+participant "OmnAIView app (frontend)" as OmnAIView
+participant "NaDI (backend, node interface)" as NaDI
+participant "storage node" as StorageNode
+participant "analysis node" as AnalysisNode
+participant "data storage" as DataStorage
+participant "analysis storage" as AnalysisStorage
+participant "training server" as TrainingServer
+
+user -> Car : connect scope
+user -> OmnAIView : opens software
+OmnAIView -> NaDI : start NaDI
+user -> OmnAIView : starts measurement
+OmnAIView -> NaDI : API request to start
+NaDI -> NaDI : search for nodes
+NaDI -> OmnAIView : provide available nodes
+user -> OmnAIView : selects OmnAIScope
+OmnAIView -> NaDI : open WebSocket
+NaDI -> OmnAIView : send scope info
+user -> OmnAIView : confirms & starts measurement
+OmnAIView -> NaDI : send user configuration
+NaDI -> ".dll" : connect scopes
+NaDI -> NaDI : process data
+NaDI -> OmnAIView : send processed data
+OmnAIView -> user : visualize graph
+
+user -> OmnAIView : request analysis
+OmnAIView -> NaDI : request analysis for node
+NaDI -> AnalysisNode : send data for analysis
+AnalysisNode -> AnalysisNode : analyze data
+AnalysisNode -> NaDI : return results
+NaDI -> OmnAIView : send results
+OmnAIView -> user : show results
+
+@enduml
